@@ -9,7 +9,7 @@ from typing import List, Tuple, Callable, Any
 import math
 
 
-def descripions(func: Callable[[Any], Any]):
+def descriptions(func: Callable[[Any], Any]):
     def wrapper(*args, **kwargs):
         print(f'\n{func.__name__}\n')
         result = func(*args, **kwargs)
@@ -19,16 +19,16 @@ def descripions(func: Callable[[Any], Any]):
 
 
 class Lab:
-    @descripions
     @staticmethod
+    @descriptions
     def task1(data: List[float]):
         """
         Определить средний рост девочек и мальчиков одного класса. В классе учится n учеников.
         """
         print(sum(data) / len(data))
 
-    @descripions
     @staticmethod
+    @descriptions
     def task2(r: int, center: Tuple[int, int]):
         """
         В компьютер вводятся по очереди координаты n точек.
@@ -40,17 +40,17 @@ class Lab:
                 n = abs(int(n))
             except ValueError:
                 n = input("Введите количество точек: ")
-        dots = []
+        dots: List[Tuple[int, int]] = []
         for _ in range(n):
-            dot = 'a'
+            dot: Tuple[int, int] | str = 'a'
             while not isinstance(dot, tuple):
                 try:
                     dot = tuple(map(int, dot.split()))
-                    if len(dot)!=2: raise ValueError
+                    if len(dot) != 2: 
+                        raise ValueError
                 except ValueError:
                     dot = input('Введите елочисленные координаты точки в формате "x y": ')
             dots.append(dot)
-
 
         class Vector:
             def __init__(self, start: Tuple[int, int], end: Tuple[int, int]):
@@ -60,16 +60,15 @@ class Lab:
             def __abs__(self):
                 return math.sqrt(self.x ** 2 + self.y ** 2)
 
-
         g = 0
         for dot in dots:
-            dot = Vector(start=center, end=dot)
+            dot: Vector = Vector(start=center, end=dot)
             if abs(dot) < r:
-                g+=1
+                g += 1
         print(g)
 
-    @descripions
     @staticmethod
+    @descriptions
     def task3(students: List[float]):
         """
         Ученику 1-го класса назначается дополнительно стакан молока (200 мл), если его вес составляет меньше 30 кг.
@@ -81,10 +80,10 @@ class Lab:
         >>> 0.2+0.2+0.2
         0.6000000000000001
         """
-        print(round(sum(0.2 for weight in students if weight<30), 1))
+        print(round(sum(0.2 for weight in students if weight < 30), 1))
 
-    @descripions
     @staticmethod
+    @descriptions
     def task4(r1: int, r2: int):
         """
         В компьютер вводятся по очереди координаты n точек.
@@ -98,17 +97,17 @@ class Lab:
                 n = abs(int(n))
             except ValueError:
                 n = input("Введите количество точек: ")
-        dots = []
+        dots: List[Tuple[int, int]] = []
         for _ in range(n):
-            dot = 'a'
+            dot: Tuple[int, int] | str = 'a'
             while not isinstance(dot, tuple):
                 try:
                     dot = tuple(map(int, dot.split()))
-                    if len(dot) != 2: raise ValueError
+                    if len(dot) != 2: 
+                        raise ValueError
                 except ValueError:
                     dot = input('Введите елочисленные координаты точки в формате "x y": ')
             dots.append(dot)
-
 
         class Vector:
             def __init__(self, start: Tuple[int, int], end: Tuple[int, int]):
@@ -118,16 +117,12 @@ class Lab:
             def __abs__(self):
                 return math.sqrt(self.x ** 2 + self.y ** 2)
 
-
         g = 0
         for dot in dots:
-            dot = Vector(start=center, end=dot)
+            dot: Vector = Vector(start=center, end=dot)
             if r1 < abs(dot) < r2:
-                g+=1
+                g += 1
         print(g)
-
-
-
 
 
 if __name__ == "__main__":
