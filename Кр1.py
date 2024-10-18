@@ -22,55 +22,61 @@ def descriptions(func: Callable[[Any], Any]):
 class Lab:
     @staticmethod
     @descriptions
-    def task7():
+    def task1_12():
         """
         Лабораторная работа №1
-        Из массива удалить повторяющиеся элементы.
+        Вычислить при заданном х сумму s = 1+1/x + 1/x**2 + ... + 1/x**10
         """
+        x = int(input("Введите число x: "))
+        return sum([1/(x**n) for n in range(11)])
 
-        import math
 
-        ans = []
-        for x in range(2, 20):
-            x /= 20
-            y = math.cosh(x)
-            s = 0
-            i = 0
-            arg = float("inf")
-            while abs(arg) >= 0.0001:
-                arg = x**(2*i) / math.factorial(2*i)
-                s += arg
-                i += 1
-            ans.append(f"y: {y}; s: {s}")
-        return '\n'.join(ans)
 
     @staticmethod
     @descriptions
-    def task11():
+    def task2_12():
         """
         Лабораторная работа №2
-        В группе учится n студентов. Каждый сдал 4 экзамена.
-        Подсчитать число неуспевающих студентов и средний балл группы.
+        Вводя n значений r, вычислить по выбору площадь квадрата со стороной r,
+        площадь круга радиусом r или площадь равностороннего треугольника со стороной r.
+        Использовать множественный выбор.
         """
-        values = [list(map(int, input(f'ВВедите оценки {i+1}-го ученика в формате "w x y z": ').split()))
-                  for i in range(int(input("ВВедите количество учеников ")))]
-        # Число неуспевающих - число учеников, у которых хотя бы одна двойка
-        g = sum(any(value == 2 for value in values[i]) for i in range(len(values)))
-        # Средний балл группы
-        s = sum(map(sum, values)) / (len(values) * 4)
-        return f"Число неуспевающих = {g}\nСредний балл группы = {s}"
+        def S_tr(a: int) -> float:
+            return (math.sqrt(3) * a ** 2) / 4
+        def S_cir(r: int) -> float:
+            return math.pi * r ** 2
+        def S_sq(a: int) -> int:
+            return a**2
+        for _ in range(int(input("Введите число n: "))):
+            r = int(input("Введите число r: "))
+            typ = int(input("Введите 1 - треугольник, 2 - круг, 3 - квадрат: "))
+            match typ:
+                case 1:
+                    print(S_tr(r))
+                case 2:
+                    print(S_cir(r))
+                case 3:
+                    print(S_sq(r))
+        return ""
+
 
     @staticmethod
     @descriptions
-    def task13(array: List[Any]) -> List[Any]:
+    def task3_7(array: List[Any]) -> List[Any]:
         """
         Лабораторная работа №3
-        Из массива удалить повторяющиеся элементы.
+        Все отрицательные элементы переставить в конец массива с сохранением порядка их следования.
         """
-        return list(dict.fromkeys(array).keys())
+        return list(filter(lambda n: n>=0, array)) + list(filter(lambda n: n<0, array))
 
 
 if __name__ == "__main__":
-    Lab.task7()
-    Lab.task11()
-    Lab.task13([1,3,1,2,2,5,4,1,6])
+    
+    from random import seed, randint
+    seed(1016)
+    print("Генерация номеров заданий")
+    print(list(randint(1, n) for n in [18, 13, 14]))
+    
+    Lab.task1_12()
+    Lab.task2_12()
+    Lab.task3_7([1, -7, 3, 1, -5, -6, 2, 2, 5, 4, 1, 6])
