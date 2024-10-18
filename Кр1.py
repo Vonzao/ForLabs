@@ -75,7 +75,7 @@ if __name__ == "__main__":
     from random import seed, randint
     seed(1016)
     print("Генерация номеров заданий")
-    print(list(randint(1, n) for n in [18, 13, 14]))
+    print(*list(randint(1, n) for n in [18, 13, 14]))
     
     Lab.task1_12()
     Lab.task2_12()
