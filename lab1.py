@@ -1,3 +1,4 @@
+
 """
                     `           Лабораторная работа №1
                                     III Уровень
@@ -5,9 +6,22 @@
 """
 
 
+from typing import Callable, Any
+
+
+def descriptions(func: Callable[[Any], Any]):
+    def wrapper(*args, **kwargs):
+        print(f'\n{func.__name__}\n')
+        result = func(*args, **kwargs)
+        print(f'\n{func.__name__} finished!\n')
+        return result
+    return wrapper
+
+
 class Lab:
 
     @staticmethod
+    @descriptions
     def task1():
 
         import math
@@ -34,6 +48,7 @@ class Lab:
             print(f"y: {y}; s: {s}")
 
     @staticmethod
+    @descriptions
     def task2():
 
         import math
@@ -52,6 +67,7 @@ class Lab:
             print(f"y: {y}; s: {s}")
 
     @staticmethod
+    @descriptions
     def task3():
 
         import math
@@ -70,6 +86,7 @@ class Lab:
             print(f"y: {y}; s: {s + 1}")
 
     @staticmethod
+    @descriptions
     def task4():
 
         import math
@@ -85,4 +102,11 @@ class Lab:
                 arg = ((2*i + 1) * x ** (2*i)) / math.factorial(i)
                 s += arg
                 i += 1
-            print(f"y: {y}; s: {s + 1}")
+            print(f"y: {y}; s: {s}")
+
+
+if __name__ == "__main__":
+    Lab.task1()
+    Lab.task2()
+    Lab.task3()
+    Lab.task4()
