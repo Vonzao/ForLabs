@@ -7,7 +7,6 @@
 
 from typing import List, Tuple, Callable, Any
 import math
-from icecream import ic
 
 
 def descripions(func: Callable[[Any], Any]):
