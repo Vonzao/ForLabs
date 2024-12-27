@@ -4,7 +4,8 @@
 """
 
 
-from typing import List, Callable, Any, Self, Tuple
+from typing import List, Callable, Any, Tuple
+Self = Tuple
 
 
 def descriptions(func: Callable[[Any], Any]):
@@ -14,7 +15,11 @@ def descriptions(func: Callable[[Any], Any]):
             addition = kwargs["addition"]
             del kwargs["addition"]
         print(f'\n{func.__name__} {addition}\n')
+        print("Исходные данные")
+        for el in args:
+            print("\n".join(map(list.__repr__, el)), end="\n"*3)
         result = func(*args, **kwargs)
+        print("Результат")
         print(result)
         print(f'\n{func.__name__} finished!\n')
         return result
@@ -37,7 +42,6 @@ class Lab:
         for line in matrix:
             line.pop(ind)
         return "\n".join(map(list.__repr__, matrix))
-
 
 
     @staticmethod
@@ -194,4 +198,4 @@ if __name__ == "__main__":
         ['Дементьев Ратмир Харлампьевич', 'Стальные Ястребы'],
         ['Галина Александровна Орехова', 'Северные Соколы'],
         ['Андреев Дорофей Жоресович', 'Сибирские Олени']
-    ])
+    ]) ])
