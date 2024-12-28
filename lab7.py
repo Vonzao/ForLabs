@@ -121,7 +121,7 @@ class Lab:
 
             def __repr__(self):
                 ma = len(max(self.participants, key=lambda el: len(el[0]))[0]) + 2
-                res = f"{"Фамилия": ^{ma}}| Результат\n"
+                res = f"{'Фамилия': ^{ma}}| Результат\n"
                 for participant in participants:
                     res += f"{participant[0]: ^{ma}}| {participant[1]}\n"
                 return res
