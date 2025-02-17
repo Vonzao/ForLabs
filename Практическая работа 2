@@ -1,0 +1,26 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+class Practical:
+    @staticmethod
+    def task7():
+        start, stop, num, a, b = map(int, input('Введите данные в формате "{start} {stop} {num} {a} {b}": ').split())
+        x = np.linspace(start, stop, num)
+        fig, ax = plt.subplots(figsize=(5, 7))
+        ax.plot(x, a*b**x)
+
+    @staticmethod
+    def task21():
+        x, y = map(lambda line: list(map(float, line.split(", "))), open("DATA.txt").readlines())
+        fig, ax = plt.subplots()
+        ax.plot(x, y)
+
+
+if __name__ == "__main__":
+    from random import seed, randint
+    seed(216)
+    print(randint(1, 24), randint(1, 28))
+    # f(x) = a*b**x
+    Practical.task7()
+    Practical.task21()
+    plt.show()
