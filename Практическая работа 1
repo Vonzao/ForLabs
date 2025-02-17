@@ -1,0 +1,51 @@
+"""
+                               Лабораторная работа №9
+                                    III Уровень
+                               Сазонов Данила Сергеевич
+"""
+# Первое задание не загрузил на GitHub, потому что оно не созранилось на компьютере
+
+from typing import Callable, Any
+
+
+def descriptions(func: Callable[[Any], Any]):
+    def wrapper(*args, **kwargs):
+        addition = ""
+        if "addition" in kwargs:
+            addition = kwargs["addition"]
+            del kwargs["addition"]
+        print(f'\n{func.__name__} {addition}\n')
+        print("Исходные данные\n")
+        for el in args:
+            if isinstance(el, list) and isinstance(el[0], list):
+                print("\n".join(map(repr, el)), end="\n" * 3)
+            else:
+                print(el)
+        result = func(*args, **kwargs)
+        print("\nРезультат\n")
+        print(result)
+        print(f'\n{func.__name__} finished!\n')
+        return result
+
+    return wrapper
+
+
+class Lab:
+    @staticmethod
+    @descriptions
+    def task20() -> int:
+        numbers = list(map(int, open("27-A.txt").readlines()))
+        mi_ind = numbers.index(min(numbers))
+        for num in numbers:
+            if num < 0:
+                if numbers.index(num) < mi_ind:
+                    return sum(numbers[::2])
+                else:
+                    return sum(numbers[1::2])
+
+
+if __name__ == "__main__":
+    from random import seed, randint
+    seed(116)
+    print(randint(1, 20))
+    Lab.task20()
