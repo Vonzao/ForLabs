@@ -1,6 +1,5 @@
 import random
 from sklearn.neighbors import KNeighborsClassifier
-from icecream import ic
 import matplotlib.pyplot as plt
 from typing import Tuple, List
 
