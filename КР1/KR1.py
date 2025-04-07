@@ -51,19 +51,21 @@ if __name__ == "__main__":
     predicted = list(map(int, neigh.predict(x_test)))
 
     # Отрисовка областей для кластеров
-    plt.plot([x1[0], x1[0], x1[1], x1[1], x1[0]], [y1[0], y1[1], y1[1], y1[0], y1[0]])
-    plt.plot([x2[0], x2[0], x2[1], x2[1], x2[0]], [y2[0], y2[1], y2[1], y2[0], y2[0]])
+    plt.plot([x1[0], x1[0], x1[1], x1[1], x1[0]], [y1[0], y1[1], y1[1], y1[0], y1[0]], color="b")
+    plt.plot([x2[0], x2[0], x2[1], x2[1], x2[0]], [y2[0], y2[1], y2[1], y2[0], y2[0]], color="b")
 
     # Отрисовка точек
-    pos1 = list(filter(lambda el: y_train[x_train.index(el)] == 0, x_train))
-    pos2 = list(filter(lambda el: y_train[x_train.index(el)], x_train))
-    plt.plot([x[0] for x in pos1], [x[1] for x in pos1], marker="o", color="b", ls="")
-    plt.plot([x[0] for x in pos2], [x[1] for x in pos2], marker="p", color="#FFA500", ls="")
-    colors = ["#800080", "r"]
+    colors = ["r", "g"]
     markers = ["o", "p"]
 
     for ind, pos in enumerate(x_test):
-        plt.plot([pos[0]], [pos[1]], marker=markers[predicted[ind]], color=colors[predicted[ind]], ls="")
+        plt.plot([pos[0]], [pos[1]], marker=markers[predicted[ind]], color=colors[y_test[ind] == predicted[ind]], ls="")
+
+
+    pos1 = list(filter(lambda el: y_train[x_train.index(el)] == 0, x_train))
+    pos2 = list(filter(lambda el: y_train[x_train.index(el)], x_train))
+    plt.plot([x[0] for x in pos1], [x[1] for x in pos1], marker="o", color="b", ls="")
+    plt.plot([x[0] for x in pos2], [x[1] for x in pos2], marker="p", color="b", ls="")  # color="#FFA500"
 
     # Пункт 4
     print(f"computeAccuracy: {computeAccuracy(predicted, y_test)}")
