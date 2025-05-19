@@ -6,12 +6,14 @@ import random
 from sklearn.tree import DecisionTreeRegressor
 from typing import List, Tuple, Generator, Union
 
+
 def mean(lst: Generator[Union[int, float], None, None]):
     lst = list(lst)
     return sum(lst) / len(lst)
 
 def smape(y_true: List[float], y_pred: List[float]) -> float:
-    return 100 * np.mean([2 * abs(p - a) / (abs(a) + abs(p)) if (a + p) != 0 else 0 for a, p in zip(y_true, y_pred)])
+    return 100 * mean([abs(p - a) / (abs(a) + abs(p)) if (a + p) != 0 and a >= 1e-100 else 0 for a, p in zip(y_true, y_pred)])
+
 
 class App:
     def __init__(self):
@@ -52,6 +54,7 @@ class App:
             ns = (signal / scale)
             noisy_signal = np.random.poisson(np.maximum(ns, 1e-6)) * scale
             return noisy_signal
+
         x = np.arange(-31.0, 31.1, 0.5)
         y = 10 / (1 + e ** (-0.7 * x + 2))
         noisy_y = add_poisson_noise(y, scale=0.05)
@@ -69,36 +72,33 @@ class App:
     def plot_smape_per_epoch(self):
         plt.figure(figsize=(8, 4))
         plt.plot(self.smape_history, marker='o')
-        plt.title("sMAPE vs Epoch")
-        plt.xlabel("Epoch")
+        plt.title("Зависимость sMAPE от эпохи")
+        plt.xlabel("Эпоха")
         plt.ylabel("sMAPE (%)")
         plt.grid(True)
         plt.show()
 
     def slider_plot(self):
-        # Создание фигуры и осей
+
         fig, ax = plt.subplots(figsize=(10, 5))
         plt.subplots_adjust(bottom=0.25)
 
         x_true = np.linspace(-31, 31.1, 200)
         y_true = 10 / (1 + e ** (-0.7 * x_true + 2))
-        ax.plot(x_true, y_true, label="True Function", color="black", linestyle="--")
+        ax.plot(x_true, y_true, label="Истинная функция", color="black", linestyle="--")
 
-        # Данные
         x_data = [d[0] for d in self.data]
         y_data = [d[1] for d in self.data]
-        ax.scatter(x_data, y_data, color="blue", s=20, alpha=0.5, label="Noisy Data")
+        ax.scatter(x_data, y_data, color="blue", s=20, alpha=0.5, label="Пуассоновский шум")
 
-        # Первая кривая предсказания (будет обновляться)
-        pred_line, = ax.plot([], [], marker='o', color='red', label="Prediction")
+        pred_line, = ax.plot([], [], marker='o', color='red', label="Предсказание")
 
-        ax.set_title(f"Epoch 0, sMAPE = {self.smape_history[0]:.2f}%")
+        ax.set_title(f"Эпоха 0, sMAPE = {self.smape_history[0]:.2f}%")
         ax.legend()
         ax.grid(True)
 
-        # Добавление ползунка
         ax_slider = plt.axes([0.2, 0.1, 0.6, 0.03])
-        slider = Slider(ax_slider, 'Epoch', 0, len(self.history) - 1, valinit=100, valstep=1)
+        slider = Slider(ax_slider, 'Эпоха', 0, len(self.history) - 1, valinit=100, valstep=1)
 
         def update(val):
             epoch = int(slider.val)
@@ -106,14 +106,16 @@ class App:
             x_pred = [pt[0] for pt in data]
             y_pred = [pt[1] for pt in data]
             pred_line.set_data(x_pred, y_pred)
-            ax.set_title(f"Epoch {epoch}, sMAPE = {self.smape_history[epoch]:.2f}%")
+            ax.set_title(f"Эпоха {epoch}, sMAPE = {self.smape_history[epoch]:.2f}%")
             ax.relim()
             ax.autoscale_view()
             fig.canvas.draw_idle()
+
         slider.on_changed(update)
         update(0)
 
         plt.show()
+
 
 if __name__ == "__main__":
     App()
