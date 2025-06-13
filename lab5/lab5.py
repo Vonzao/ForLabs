@@ -4,6 +4,7 @@ import random
 from typing import Tuple, List
 from sklearn.cluster import AffinityPropagation, SpectralClustering, HDBSCAN
 from functools import lru_cache
+import matplotlib.gridspec as gridspec
 from matplotlib.widgets import Slider
 
 
@@ -16,7 +17,7 @@ class Generator:
     @lru_cache
     def first(area: Tuple[int, int], n) -> Tuple[Tuple[float, float]]:
         R = 0.9 * min(area) / 2
-        r = R / 2
+        r = R / 3
         delta = R / 20
         o1 = lambda x: math.sqrt(abs(R ** 2 - x**2))
         o2 = lambda x: math.sqrt(abs(r ** 2 - x**2))
@@ -92,7 +93,7 @@ class Generator:
         delta = min(area) / 20
         that_corner1 = (-0.5 * area[0], -0.25 * area[1])
         that_corner2 = (0, area[1] / 4)
-        that_corner3 = (-0.5 * area[0], 0.1*area[1])
+        that_corner3 = (-0.5 * area[0], 0.18*area[1])
         func1 = lambda x: that_corner1[1] + (that_corner1[0] - x)
         func2 = lambda x: that_corner2[1] + (that_corner2[0] - x)
         func3 = lambda x: that_corner3[1] + (that_corner3[0] - x)
@@ -145,125 +146,82 @@ def standardization(lst: List[int]) -> List[int]:
 
 class App:
     def __init__(self):
-        random.seed(3316)
-        print(*[random.randint(1, 11) for _ in range(3)])
         self.area = (10, 10)
         self.n = 500
-
-        # Create figure and adjust for sliders
-        self.fig, self.ax = plt.subplots()
-        plt.subplots_adjust(left=0.25, bottom=0.25)
-
-        # Create vertical generation slider on the left
-        ax_gen_slider = plt.axes([0.05, 0.25, 0.05, 0.5])
-        self.gen_slider = Slider(
-            ax=ax_gen_slider,
-            label='Generation',
-            valmin=1,
-            valmax=6,
-            valinit=1,
-            valstep=1,
-            orientation='vertical'
-        )
-
-        # Create horizontal clustering slider below the plot
-        ax_cluster_slider = plt.axes([0.25, 0.1, 0.65, 0.03])
-        self.cluster_slider = Slider(
-            ax=ax_cluster_slider,
-            label='Clustering Method',
-            valmin=0,
-            valmax=3,
-            valinit=0,
-            valstep=1,
-            orientation='horizontal'
-        )
-        # Set up callbacks
-        self.gen_slider.on_changed(self.update_plot)
-        self.cluster_slider.on_changed(self.update_plot)
-
-        # Initial plot
-        self.current_generation = 1
-        self.current_clustering = 0
-        self.dots = Generator.first(self.area, self.n)
-        self.scatter = self.ax.scatter(
-            [dot[0] for dot in self.dots],
-            [dot[1] for dot in self.dots],
-            color='blue'  # Все точки синие по умолчанию
-        )
-        self.ax.set_title('Generation 1 - No Clustering')
-        plt.show()
-
-    def update_plot(self, val):
-        # Update generation if changed
-        new_gen = int(self.gen_slider.val)
-        if new_gen != self.current_generation:
-            self.current_generation = new_gen
-            generation_methods = {
-                1: Generator.first,
-                2: Generator.second,
-                3: Generator.third,
-                4: Generator.forth,
-                5: Generator.fifth,
-                6: Generator.sixth
-            }
-            self.dots = generation_methods[self.current_generation](self.area, self.n)
-
-        # Update clustering if changed
-        new_cluster = int(self.cluster_slider.val)
-        if new_cluster != self.current_clustering:
-            self.current_clustering = new_cluster
-
-        # Clear previous plot
-        self.ax.clear()
-
-        # Apply clustering or set default blue color
-        if self.current_clustering == 0:
-            # No clustering - all points blue
-            self.scatter = self.ax.scatter(
-                [dot[0] for dot in self.dots],
-                [dot[1] for dot in self.dots],
-                color='blue'
-            )
-        else:
-            # Apply clustering with colors
-            clustering_methods = {
-                1: self.affinity_propagation,
-                2: self.spectral_clustering,
-                3: self.HDBSCAN
-            }
-            labels = clustering_methods[self.current_clustering](self.dots)
-            self.scatter = self.ax.scatter(
-                [dot[0] for dot in self.dots],
-                [dot[1] for dot in self.dots],
-                c=labels,
-                cmap='viridis'
-            )
-
-        # Update title
-        clustering_names = {
-            0: "No Clustering",
-            1: "Affinity Propagation",
-            2: "Spectral Clustering",
-            3: "HDBSCAN"
+        self.clustering_methods = {
+            1: ("Affinity Propagation", self.affinity_propagation),
+            2: ("Spectral Clustering", self.spectral_clustering),
+            3: ("HDBSCAN", self.HDBSCAN)
         }
-        self.ax.set_title(f'Generation {self.current_generation} - {clustering_names[self.current_clustering]}')
-        self.fig.canvas.draw_idle()
+        self.generation_methods = {
+            1: ("Two Circles", Generator.first, 2),
+            2: ("Two Parabolas", Generator.second, 2),
+            3: ("Three Circles", Generator.third, 3),
+            4: ("Three Lines", Generator.forth, 3),
+            5: ("Three Circles'", Generator.fifth, 3),
+            6: ("Random Points", Generator.sixth, 3)
+        }
+        self._setup_plots()
+
+    def _setup_plots(self):
+        # Настройка сетки графиков: 6 строк (генерации) x 3 столбца (кластеризации)
+        fig = plt.figure(figsize=(15, 20))
+        gs = gridspec.GridSpec(
+            nrows=6,
+            ncols=3,
+            figure=fig,
+            wspace=0.3,
+            hspace=0.4
+        )
+
+        # Заполнение таблицы
+        for gen_num, (gen_name, gen_func, n) in self.generation_methods.items():
+            dots = gen_func(self.area, self.n)
+
+            for cluster_num, (cluster_name, cluster_func) in self.clustering_methods.items():
+                ax = fig.add_subplot(gs[gen_num - 1, cluster_num - 1])
+
+                # Применение кластеризации
+                labels = cluster_func(dots, n)
+                unique_clusters = len(set(labels))
+
+                # Отрисовка точек
+                scatter = ax.scatter(
+                    [dot[0] for dot in dots],
+                    [dot[1] for dot in dots],
+                    c=labels,
+                    cmap='viridis',
+                    s=10
+                )
+
+                # Настройка заголовка и подписей
+                if gen_num == 1:
+                    ax.set_title(cluster_name, pad=10)
+                if cluster_num == 1:
+                    ax.set_ylabel(gen_name, rotation=0, labelpad=40, ha='right')
+
+                ax.set_xticks([])
+                ax.set_yticks([])
+                ax.set_xlim(-self.area[0] / 2, self.area[0] / 2)
+                ax.set_ylim(-self.area[1] / 2, self.area[1] / 2)
+
+
+        plt.suptitle("Clustering Results for Different Generations and Methods", y=0.99, fontsize=14)
+        plt.show()
 
     @staticmethod
     @lru_cache
-    def affinity_propagation(dots: Tuple[Tuple[float, float]]) -> List[int]:
+    def affinity_propagation(dots: Tuple[Tuple[float, float]], n) -> List[int]:
         model = AffinityPropagation(preference=-50, random_state=42).fit(dots)
         return standardization(model.labels_)
 
-    @lru_cache
-    def spectral_clustering(self, dots: Tuple[Tuple[float, float]]) -> List[int]:
-        n_clusters = [2, 2, 3, 3, 3, 3][self.current_generation-1]
-        model = SpectralClustering(n_clusters=n_clusters).fit_predict(dots)
+    def spectral_clustering(self, dots: Tuple[Tuple[float, float]], n) -> List[int]:
+        model = SpectralClustering(n_clusters=n).fit_predict(dots)
         return standardization(model.tolist())
 
     @staticmethod
     @lru_cache
-    def HDBSCAN(dots: Tuple[Tuple[float, float]]) -> List[int]:
+    def HDBSCAN(dots: Tuple[Tuple[float, float]], n) -> List[int]:
         min_size = max(5, int(len(dots) * 0.05))
         model = HDBSCAN(min_cluster_size=min_size).fit(dots)
         return standardization(model.labels_.tolist())
